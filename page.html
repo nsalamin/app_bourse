@@ -6,7 +6,7 @@
     <button type="submit">Ajoute une vente</button>
 </form>
 
-<h2>Liste des acheteurs et leurs vente</h2>
+<h2>Liste des acheteurs et leurs ventes</h2>
 <ul id="itemList"></ul>
 <button id="removeLastItem">Enl&egraveve la dernière vente</button>
 
@@ -49,12 +49,50 @@
         const itemList = document.getElementById('itemList');
         itemList.innerHTML = '';
 
+        // Create a table element
+        const table = document.createElement('table');
+        table.border = '1';
+        table.style.borderCollapse = 'collapse'; // Optional: to collapse borders
+        table.style.width = '100%'; // Optional: to make the table full width
+
+        // Create the header row
+        const headerRow = document.createElement('tr');
+        const headers = ['Vendeur', 'Prix', 'Vente total'];
+        headers.forEach(headerText => {
+            const header = document.createElement('th');
+            header.textContent = headerText;
+            header.style.padding = '8px'; // Add padding
+            headerRow.appendChild(header);
+        });
+        table.appendChild(headerRow);
+
         // Display all items in the dictionary
         Object.entries(items).forEach(([id, prices]) => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `Nb vendeur: ${id}, Prix: ${prices.join(', ')}, Total: ${prices.reduce((acc, price) => acc + parseFloat(price), 0)}`;
-            itemList.appendChild(listItem);
+            const row = document.createElement('tr');
+
+            // Create and append the ID cell
+            const idCell = document.createElement('td');
+            idCell.textContent = id;
+            idCell.style.padding = '8px'; // Add padding
+            row.appendChild(idCell);
+
+            // Create and append the Prices cell
+            const pricesCell = document.createElement('td');
+            pricesCell.textContent = prices.join(', ');
+            pricesCell.style.padding = '8px'; // Add padding
+            row.appendChild(pricesCell);
+
+            // Create and append the Total cell
+            const totalCell = document.createElement('td');
+            totalCell.textContent = prices.reduce((acc, price) => acc + parseFloat(price), 0);
+            totalCell.style.padding = '8px'; // Add padding
+            row.appendChild(totalCell);
+
+            table.appendChild(row);
         });
+
+        // Append the table to the itemList element
+        itemList.appendChild(table);
     }
 
     function removeLastItem() {
