@@ -1,0 +1,95 @@
+<form id="itemForm">
+    <label for="itemId">Num&eacutero vendeur:</label>
+    <input type="text" id="Numero vendeur" name="itemId" required><br><br>
+    <label for="itemPrice">Prix:</label>
+    <input type="number" id="Prix" name="itemPrice" required><br><br>
+    <button type="submit">Ajoute une vente</button>
+</form>
+
+<h2>Liste des acheteurs et leurs vente</h2>
+<ul id="itemList"></ul>
+<button id="removeLastItem">Enl&egraveve la dernière vente</button>
+
+<script>
+    // Dictionary to store items
+    const items = {};
+    // Array to keep track of the order in which items are added
+    const itemOrder = [];
+
+    document.getElementById('itemForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Get item details
+        const itemId = document.getElementById('Numero vendeur').value;
+        const itemPrice = document.getElementById('Prix').value;
+
+        // Add the price to the array for the given item ID
+        if (!items[itemId]) {
+            items[itemId] = [];
+        }
+        items[itemId].push(itemPrice);
+        itemOrder.push({ id: itemId, price: itemPrice });
+
+        // Update the item list display
+        updateItemList();
+
+        // Clear the form
+        document.getElementById('itemForm').reset();
+        document.getElementById('Numero vendeur').focus()
+
+        // Send the entire items dictionary to the server to overwrite the CSV file
+        updateCSVFile();
+    });
+
+    document.getElementById('removeLastItem').addEventListener('click', function() {
+        removeLastItem();
+    });
+
+    function updateItemList() {
+        const itemList = document.getElementById('itemList');
+        itemList.innerHTML = '';
+
+        // Display all items in the dictionary
+        Object.entries(items).forEach(([id, prices]) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `Nb vendeur: ${id}, Prix: ${prices.join(', ')}, Total: ${prices.reduce((acc, price) => acc + parseFloat(price), 0)}`;
+            itemList.appendChild(listItem);
+        });
+    }
+
+    function removeLastItem() {
+        if (itemOrder.length > 0) {
+            // Remove the last item from the order array
+            const lastItem = itemOrder.pop();
+            const { id, price } = lastItem;
+
+            // Remove the price from the dictionary
+            const priceIndex = items[id].indexOf(price);
+            if (priceIndex > -1) {
+                items[id].splice(priceIndex, 1);
+                if (items[id].length === 0) {
+                    delete items[id];
+                }
+            }
+
+            // Update the item list display
+            updateItemList();
+
+            // Send the entire items dictionary to the server to overwrite the CSV file
+            updateCSVFile();
+        }
+    }
+
+    function updateCSVFile() {
+        fetch('http://localhost:3000/updateCSV', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(items)
+        })
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+    }
+</script>
