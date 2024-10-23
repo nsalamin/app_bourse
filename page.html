@@ -38,7 +38,7 @@
         document.getElementById('Numero vendeur').focus()
 
         // Send the entire items dictionary to the server to overwrite the CSV file
-        updateCSVFile();
+        updateData();
     });
 
     document.getElementById('removeLastItem').addEventListener('click', function() {
@@ -114,12 +114,12 @@
             updateItemList();
 
             // Send the entire items dictionary to the server to overwrite the CSV file
-            updateCSVFile();
+            updateData();
         }
     }
 
-    function updateCSVFile() {
-        fetch('http://localhost:3000/updateCSV', {
+    function updateData() {
+        fetch('http://localhost:3000/updateDB', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

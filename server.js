@@ -3,9 +3,20 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const Item = require('./models/Item');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = 3000;
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/itemsDB', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000 // Increase timeout to 30 seconds
+})
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('Could not connect to MongoDB', err));
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -30,6 +41,45 @@ app.post('/updateCSV', (req, res) => {
         console.log('CSV file updated successfully'); // Debugging log
         res.status(200).send('CSV file updated');
     });
+});
+
+app.post('/updateDB', async (req, res) => {
+    const items = req.body;
+    console.log('Received items:', items);
+
+    try {
+        // Retrieve all existing items from the database
+        const existingItems = await Item.find({});
+        const existingItemIds = new Set(existingItems.map(item => item.id));
+
+        // Track processed IDs
+        const processedIds = new Set();
+
+        // Process incoming items
+        for (const [id, prices] of Object.entries(items)) {
+            const itemData = { id, prices: prices.map(price => parseInt(price)) };
+            console.log("itemData: ", itemData);
+            await Item.findOneAndUpdate(
+                { id },
+                itemData,
+                { upsert: true, new: true, useFindAndModify: false }
+            );
+            processedIds.add(id);
+        }
+
+        // Delete items that are no longer present in the incoming data
+        for (const id of existingItemIds) {
+            if (!processedIds.has(id)) {
+                await Item.deleteOne({ id });
+                console.log(`Deleted item with id: ${id}`);
+            }
+        }
+
+        res.status(200).send('Items saved to database');
+    } catch (err) {
+        console.error('Error saving items to database:', err); // Debugging log
+        res.status(500).send('Error saving items to database');
+    }
 });
 
 app.listen(PORT, () => {
