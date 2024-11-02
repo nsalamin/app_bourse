@@ -1,10 +1,12 @@
 <form id="itemForm">
     <label for="itemId">Num&eacutero vendeur:</label>
-    <input type="text" id="Numero vendeur" name="itemId" required><br><br>
+    <input type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
     <label for="itemPrice">Prix:</label>
     <input type="number" id="Prix" name="itemPrice" required><br><br>
     <button type="submit">Ajoute une vente</button>
 </form>
+
+<button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>
 
 <h2>Liste des acheteurs et leurs ventes</h2>
 <ul id="itemList"></ul>
@@ -43,6 +45,19 @@
 
     document.getElementById('removeLastItem').addEventListener('click', function() {
         removeLastItem();
+    });
+
+    document.getElementByID('saveToCSV').addEventListener('click', function() {
+        fetch('http://localhost:3000/saveToCSV', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(items)
+        })
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
     });
 
     function updateItemList() {

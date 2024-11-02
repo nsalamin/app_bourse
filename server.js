@@ -21,7 +21,7 @@ mongoose.connect('mongodb://localhost:27017/itemsDB', {
 app.use(cors());
 app.use(bodyParser.json());
 
-app.post('/updateCSV', (req, res) => {
+app.post('/saveToCSV', (req, res) => {
     console.log('Headers:', req.headers); // Debugging log
     console.log('Body:', req.body); // Debugging log
     const items = req.body;
