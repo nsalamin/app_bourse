@@ -2,28 +2,31 @@
     <label for="itemId">Num&eacutero vendeur:</label>
     <input type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
     <label for="itemPrice">Prix:</label>
-    <input type="number" id="Prix" name="itemPrice" required><br><br>
+    <input type="number" id="Prix" name="itemPrice" step="0.01" required><br><br>
     <button type="submit">Ajoute une vente</button>
 </form>
 
-<button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>
+<!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button> -->
 
 <h2>Liste des acheteurs et leurs ventes</h2>
 <ul id="itemList"></ul>
-<button id="removeLastItem">Enl&egraveve la dernière vente</button>
+<button id="removeLastItem">Enl&egraveve la derni&egravere vente</button>
+
+<button id="loadCSVFile">Upload un fichier CSV</button>
 
 <script>
     // Dictionary to store items
-    const items = {};
+    let items = {};
     // Array to keep track of the order in which items are added
-    const itemOrder = [];
+    let itemOrder = [];
 
     document.getElementById('itemForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
         // Get item details
         const itemId = document.getElementById('Numero vendeur').value;
-        const itemPrice = document.getElementById('Prix').value;
+        let itemPrice = parseFloat(document.getElementById('Prix').value);
+        itemPrice = itemPrice.toFixed(2);
 
         // Add the price to the array for the given item ID
         if (!items[itemId]) {
@@ -47,18 +50,20 @@
         removeLastItem();
     });
 
-    document.getElementByID('saveToCSV').addEventListener('click', function() {
-        fetch('http://localhost:3000/saveToCSV', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(items)
-        })
-        .then(response => response.text())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
-    });
+    document.getElementById('loadCSVFile').addEventListener('click', loadCSV);
+
+    // document.getElementByID('saveToCSV').addEventListener('click', function() {
+    //     fetch('http://localhost:3000/saveToCSV', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify(items)
+    //     })
+    //     .then(response => response.text())
+    //     .then(data => console.log(data))
+    //     .catch(error => console.error('Error:', error));
+    // });
 
     function updateItemList() {
         const itemList = document.getElementById('itemList');
@@ -99,7 +104,8 @@
 
             // Create and append the Total cell
             const totalCell = document.createElement('td');
-            totalCell.textContent = prices.reduce((acc, price) => acc + parseFloat(price), 0);
+            const totalSales = prices.reduce((sum, price) => sum + parseFloat(price), 0);
+            totalCell.textContent = totalSales.toFixed(2);
             totalCell.style.padding = '8px'; // Add padding
             row.appendChild(totalCell);
 
@@ -134,7 +140,7 @@
     }
 
     function updateData() {
-        fetch('http://localhost:3000/updateDB', {
+        fetch('http://localhost:3000/saveToCSV', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -145,4 +151,29 @@
         .then(data => console.log(data))
         .catch(error => console.error('Error:', error));
     }
+
+    function loadCSV() {
+        items = {};
+        itemOrder = [];
+
+        fetch('http://localhost:3000/loadCSV')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    console.log(item);
+                    const itemId = item.id;
+                    const itemPrice = parseFloat(item.price);
+                    if (!items[itemId]) {
+                        items[itemId] = [];
+                    }
+                    items[itemId].push(itemPrice);
+                    itemOrder.push({ id: itemId, price: itemPrice });
+                });
+                updateItemList();
+            })
+            .catch(error => console.error('Error loading CSV:', error));
+    }
+
+    // Call loadCSV when the page loads
+    window.onload = loadCSV;
 </script>

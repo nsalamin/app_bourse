@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const Item = require('./models/Item');
 const mongoose = require('mongoose');
+const csv = require('csv-parser');
 
 const app = express();
 const PORT = 3000;
@@ -21,19 +22,35 @@ mongoose.connect('mongodb://localhost:27017/itemsDB', {
 app.use(cors());
 app.use(bodyParser.json());
 
+app.get('/loadCSV', (req, res) => {
+    const results = [];
+    console.log('Loading CSV file...'); // Debugging log
+    fs.createReadStream(path.join(__dirname, 'vendeur_prix.csv'))
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', () => {
+            console.log('CSV file loaded:', results); // Debugging log
+            res.json(results);
+        });
+});
+
 app.post('/saveToCSV', (req, res) => {
     console.log('Headers:', req.headers); // Debugging log
     console.log('Body:', req.body); // Debugging log
     const items = req.body;
     console.log('Received items:', items);
+
+    const header = 'id,price\n';
     
     const csvLines = Object.entries(items).map(([id, prices]) => {
         return prices.map(price => `${id},${price}`).join('\n');
     }).join('\n');
 
-    console.log('CSV content to write:', csvLines); // Debugging log
+    const csvContent = header + csvLines;
 
-    fs.writeFile(path.join(__dirname, 'vendeur_prix.csv'), csvLines, (err) => {
+    console.log('CSV content to write:', csvContent); // Debugging log
+
+    fs.writeFile(path.join(__dirname, 'vendeur_prix.csv'), csvContent, (err) => {
         if (err) {
             console.error('Error writing to CSV file:', err); // Debugging log
             return res.status(500).send('Error writing to CSV file');
