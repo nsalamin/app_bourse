@@ -98,7 +98,7 @@
 
             // Create and append the Prices cell
             const pricesCell = document.createElement('td');
-            pricesCell.textContent = prices.join(', ');
+            pricesCell.textContent = prices.map(price => parseFloat(price).toFixed(2)).join(', ');
             pricesCell.style.padding = '8px'; // Add padding
             row.appendChild(pricesCell);
 

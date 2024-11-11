@@ -10,15 +10,6 @@ const csv = require('csv-parser');
 const app = express();
 const PORT = 3000;
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/itemsDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000 // Increase timeout to 30 seconds
-})
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Could not connect to MongoDB', err));
-
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -61,6 +52,20 @@ app.post('/saveToCSV', (req, res) => {
 });
 
 app.post('/updateDB', async (req, res) => {
+    try {
+    // Connect to MongoDB
+        mongoose.connect('mongodb://localhost:27017/itemsDB', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 30000 // Increase timeout to 30 seconds
+        })
+            .then(() => console.log('Connected to MongoDB'))
+            .catch(err => console.error('Could not connect to MongoDB', err));
+    } catch (err) {
+        console.error('Error connecting to database:', err); // Debugging log
+        res.status(500).send('Error connecting to database');
+    }
+
     const items = req.body;
     console.log('Received items:', items);
 
