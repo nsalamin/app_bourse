@@ -28,14 +28,12 @@ app.get('/loadCSV', (req, res) => {
 app.post('/saveToCSV', (req, res) => {
     console.log('Headers:', req.headers); // Debugging log
     console.log('Body:', req.body); // Debugging log
-    const items = req.body;
-    console.log('Received items:', items);
+    const itemOrder = req.body;
+    console.log('Received item order:', itemOrder);
 
     const header = 'id,price\n';
     
-    const csvLines = Object.entries(items).map(([id, prices]) => {
-        return prices.map(price => `${id},${price}`).join('\n');
-    }).join('\n');
+    const csvLines = itemOrder.map(({ id, price }) => `${id},${price}`).join('\n');
 
     const csvContent = header + csvLines;
 

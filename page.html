@@ -145,7 +145,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(items)
+            body: JSON.stringify(itemOrder) // use { items, itemOrder } to send both
         })
         .then(response => response.text())
         .then(data => console.log(data))
