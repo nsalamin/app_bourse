@@ -15,7 +15,14 @@ app.use(bodyParser.json());
 
 app.get('/loadCSV', (req, res) => {
     const results = [];
+    const filePath = path.join(__dirname, 'vendeur_prix.csv');
     console.log('Loading CSV file...'); // Debugging log
+
+    if (!fs.existsSync(filePath)) {
+        console.error('CSV file not found:', filePath); // Debugging log
+        return res.json(results);
+    }
+
     fs.createReadStream(path.join(__dirname, 'vendeur_prix.csv'))
         .pipe(csv())
         .on('data', (data) => results.push(data))
@@ -39,7 +46,9 @@ app.post('/saveToCSV', (req, res) => {
 
     console.log('CSV content to write:', csvContent); // Debugging log
 
-    fs.writeFile(path.join(__dirname, 'vendeur_prix.csv'), csvContent, (err) => {
+    const filePath = path.join(__dirname, 'vendeur_prix.csv');
+ 
+    fs.writeFile(filePath, csvContent, (err) => {
         if (err) {
             console.error('Error writing to CSV file:', err); // Debugging log
             return res.status(500).send('Error writing to CSV file');
