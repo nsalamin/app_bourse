@@ -31,6 +31,10 @@
         <button type="submit">Ajoute une vente</button>
     </form>
 
+    <p></p>
+    <button id="newBuyer">Nouvel acheteur</button>
+    <p></p>
+
     <div class="foldable-section">
         <div class="foldable-header" onclick="toggleFoldableContent()">Liste des prix et total</div>
         <div class="foldable-content" id="foldableContent">
@@ -39,7 +43,7 @@
         </div>
     </div>
 
-    <!-- <button id="saveToCSV">Sauvegarder     les ventes dans un fichier CSV</button>     -->
+    <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
     <h2>Liste des acheteurs et leurs ventes</h2>
     <ul id="itemList"></ul>
@@ -52,8 +56,14 @@
         let items = {};
         // Array to keep track of the order     in which items are added
         let itemOrder = [];
+        let currentBuyer = [];
 
-        document.getElementById('itemForm').    addEventListener('submit', function (event) {
+        document.getElementById('newBuyer').addEventListener('click', function() {
+            currentBuyer = [];
+            updateFoldableContent();
+        });
+
+        document.getElementById('itemForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
             // Get item details
@@ -67,6 +77,9 @@
             }
             items[itemId].push(itemPrice);
             itemOrder.push({ id: itemId, price: itemPrice });
+            currentBuyer.push(itemPrice);
+
+            console.log('currentBuyer:', currentBuyer);
 
             // Update the item list display
             updateItemList();
@@ -77,7 +90,7 @@
             document.getElementById('itemForm').reset();
             document.getElementById('Numero vendeur').focus()
 
-            // Send the entire items    dictionary to the server to    overwrite the CSV file
+            // Send the entire items dictionary to the server to    overwrite the CSV file
             updateData();
         });
 
@@ -166,6 +179,8 @@
                     }
                 }
 
+                //Remove the last price from the current buyer
+                currentBuyer.pop();
                 // Update the item list     display
                 updateItemList();
                 // Update the foldable section
@@ -192,6 +207,7 @@
         function loadCSV() {
             items = {};
             itemOrder = [];
+            currentBuyer = [];
 
             fetch('http://localhost:3000/loadCSV')
                 .then(response => response.json())
@@ -228,9 +244,9 @@
             priceList.innerHTML = '';
 
             let total = 0;
-            itemOrder.forEach(({ id, price }) => {
+            currentBuyer.forEach(({ price }, index) => {
                 const li = document.createElement('li');
-                li.textContent = `Vendeur: ${id}, Prix: ${price.toFixed(2)}`;
+                li.textContent = `Achat ${index + 1}: ${price.toFixed(2)}`;
                 priceList.appendChild(li);
                 total += price;
             });
