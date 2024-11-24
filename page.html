@@ -43,11 +43,15 @@
         </div>
     </div>
 
+    <p>
+    <button id="removeLastItem">Enl&egraveve la derni&egravere vente</button>&nbsp;&nbsp;
+    <button id="removeItem">Enl&egraveve la vente: </button><input type="text" id="itemToRemove" name="item to remove">
+    </p>
+
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
     <h2>Liste des acheteurs et leurs ventes</h2>
     <ul id="itemList"></ul>
-    <button id="removeLastItem">Enl&egraveve la derni&egravere vente</button>
 
     <button id="loadCSVFile">Upload un fichier CSV</button>
 
@@ -56,9 +60,18 @@
         let items = {};
         // Array to keep track of the order     in which items are added
         let itemOrder = [];
+        // Array to keep track of the item bought by current buyer
         let currentBuyer = [];
+        // Dictionary to store all buyers
+        let allBuyers = {};
+        // Variable to keep track in the itemOrder array of the start of the current buyer
+        let currentItem = 0;
 
         document.getElementById('newBuyer').addEventListener('click', function() {
+            if (allBuyers.length > 0) {
+                allBuyers.push(currentBuyer);
+            }
+            currentItem = itemOrder.length;
             currentBuyer = [];
             updateFoldableContent();
         });
@@ -96,6 +109,38 @@
 
         document.getElementById('removeLastItem').addEventListener('click', function() {
             removeLastItem();
+        });
+
+        document.getElementById('removeItem').addEventListener('click', function() {
+            const itemToRemove = document.getElementById('itemToRemove').value;
+            console.log('Removing item:', itemToRemove);
+
+            const itemIndex = currentItem + parseInt(itemToRemove) - 1;
+            console.log('itemIndex:', itemIndex);
+
+            if (itemIndex > -1) {
+                const { id, price } = itemOrder[itemIndex];
+                console.log('Removing item:', id, price);
+                console.log("itemOrder: ", itemOrder);
+                console.log("items: ", items);
+                const priceIndex = items[id].indexOf(price);
+                console.log('priceIndex:', priceIndex);
+                if (priceIndex > -1) {
+                    items[id].splice(priceIndex, 1);
+                    if (items[id].length === 0) {
+                        delete items[id];
+                    }
+                    console.log("items[id]: ", items[id]);
+                }
+                itemOrder.splice(itemIndex, 1);
+                console.log("itemOrder: ", itemOrder);
+                console.log("currentBuyer: ", currentBuyer);
+                currentBuyer.splice(itemToRemove - 1, 1);
+                console.log("currentBuyer: ", currentBuyer);
+                updateItemList();
+                updateFoldableContent();
+                updateData();
+            }
         });
 
         document.getElementById('loadCSVFile').addEventListener('click', loadCSV);
