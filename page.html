@@ -94,7 +94,7 @@
             itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID });
             currentBuyer.push({ id: itemId, price: itemPrice });
 
-            console.log('currentBuyer:', currentBuyer);
+            console.log("itemOrder: ", itemOrder);
 
             // Update the item list display
             updateItemList();
@@ -133,6 +133,7 @@
                 updateFoldableContent();
                 updateData();
             }
+            document.getElementById('itemToRemove').value = "";
         });
 
         document.getElementById('loadCSVFile').addEventListener('click', loadCSV);
@@ -175,7 +176,7 @@
                         console.log(item);
                         const itemId = item.id;
                         const itemPrice = parseFloat(item.price);
-                        consst itemBuyer = item.buyer;
+                        const itemBuyer = item.buyer;
                         if (!items[itemId]) {
                             items[itemId] = [];
                         }
