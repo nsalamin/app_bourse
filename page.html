@@ -38,7 +38,7 @@
     <div class="foldable-section">
         <div class="foldable-header" onclick="toggleFoldableContent()">Liste des prix et total</div>
         <div class="foldable-content" id="foldableContent">
-            <ul id="priceList"></ul>
+            <ol id="priceList"></ol>
             <p>Total: <span id="totalPrice">0.00</span></p>
         </div>
     </div>
@@ -249,7 +249,7 @@
             let total = 0;
             console.log('Updating foldable content with currentBuyer:', currentBuyer);
             currentBuyer.forEach(({ id, price }, index) => {
-                console.log('Adding this price:', parsseFloat(price).toFixed(2));
+                console.log('Adding this price:', parseFloat(price).toFixed(2));
 
                 if (price === undefined) {
                     console.log("Price is undefined");
@@ -257,12 +257,12 @@
                 }
                 
                 const li = document.createElement('li');
-                li.textContent = `Achat ${index + 1}: ${price}`;
+                li.textContent = `Achat ${index + 1}: ${price} (vendeur ${id})`;
                 priceList.appendChild(li);
-                total += price;
+                total += parseFloat(price);
             });
 
-            totalPrice.textContent = total;
+            totalPrice.textContent = parseFloat(total).toFixed(2);
         }
     </script>
 </body>
