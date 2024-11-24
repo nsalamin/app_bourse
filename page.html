@@ -33,7 +33,7 @@
     </form>
 
     <p></p>
-    <button id="newBuyer">Encaisser la vente</button>
+    <button id="newBuyer">Nouveau ticket</button>
     <p></p>
 
     <div class="foldable-section">
@@ -45,15 +45,15 @@
     </div>
 
     <p>
-    <button id="removeLastItem">Enl&egraveve la derni&egravere vente</button>&nbsp;&nbsp;
-    <button id="removeItem">Enl&egraveve la vente: </button><input type="text" id="itemToRemove" name="item to remove">
+    <button id="removeLastItem">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
+    <button id="removeItem">Enl&egraveve l'achat: </button><input type="text" id="itemToRemove" name="item to remove">
     </p>
 
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
     <h2>Résumé des ventes jusqu'à présent</h2>
     <div class="foldable-section">
-        <p>Nombre d'acheteurs: <span id="nbBuyer">0</span></p>
+        <p>Nombre d'acheteurs ayant pay&eacute;: <span id="nbBuyer">0</span></p>
         <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
         <div class="foldable-header" onclick="toggleFoldableTable()">Tableau des vendeurs et leurs ventes</div>
         <div class="foldable-content" id="foldableTable">
@@ -250,6 +250,10 @@
 
             // Append the table to the  itemList element
             itemList.appendChild(table);
+
+            // Automatically open the foldable content if it is hidden and there are items
+            const content = document.getElementById('foldableTable');
+            content.style.display = 'block';
         }
 
         function removeLastItem() {
