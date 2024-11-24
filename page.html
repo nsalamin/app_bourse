@@ -33,7 +33,7 @@
     </form>
 
     <p></p>
-    <button id="newBuyer">Nouvel acheteur</button>
+    <button id="newBuyer">Encaisser la vente</button>
     <p></p>
 
     <div class="foldable-section">
@@ -51,11 +51,11 @@
 
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
-    <h2>Vue des ventes jusqu'à maintenant</h2>
+    <h2>Résumé des ventes jusqu'à présent</h2>
     <div class="foldable-section">
         <p>Nombre d'acheteurs: <span id="nbBuyer">0</span></p>
         <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
-        <div class="foldable-header" onclick="toggleFoldableContent()">Tableau des vendeurs et leurs ventes</div>
+        <div class="foldable-header" onclick="toggleFoldableTable()">Tableau des vendeurs et leurs ventes</div>
         <div class="foldable-content" id="foldableTable">
             <ul id="itemList"></ul>
         </div>
@@ -281,6 +281,15 @@
         }
 
         function toggleFoldableContent() {
+            const content = document.getElementById('foldableContent');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+
+        function toggleFoldableTable() {
             const content = document.getElementById('foldableTable');
             if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
