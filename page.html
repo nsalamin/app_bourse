@@ -61,6 +61,7 @@
         // Array to keep track of the order     in which items are added
         let itemOrder = [];
         // Array to keep track of the item bought by current buyer
+        let currentBuyerID = 0;
         let currentBuyer = [];
         // Dictionary to store all buyers
         let allBuyers = {};
@@ -72,6 +73,7 @@
                 allBuyers.push(currentBuyer);
             }
             currentItem = itemOrder.length;
+            currentBuyerID++;
             currentBuyer = [];
             updateFoldableContent();
         });
@@ -84,12 +86,12 @@
             let itemPrice = parseFloat(document.getElementById('Prix').value);
             itemPrice = itemPrice.toFixed(2);
 
-            // Add the price to the array   for the given item ID
+            // Add the price to the array for the given item ID
             if (!items[itemId]) {
                 items[itemId] = [];
             }
             items[itemId].push(itemPrice);
-            itemOrder.push({ id: itemId, price: itemPrice });
+            itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID });
             currentBuyer.push({ id: itemId, price: itemPrice });
 
             console.log('currentBuyer:', currentBuyer);
@@ -113,30 +115,20 @@
 
         document.getElementById('removeItem').addEventListener('click', function() {
             const itemToRemove = document.getElementById('itemToRemove').value;
-            console.log('Removing item:', itemToRemove);
 
             const itemIndex = currentItem + parseInt(itemToRemove) - 1;
-            console.log('itemIndex:', itemIndex);
 
             if (itemIndex > -1) {
-                const { id, price } = itemOrder[itemIndex];
-                console.log('Removing item:', id, price);
-                console.log("itemOrder: ", itemOrder);
-                console.log("items: ", items);
+                const { id, price, buyer } = itemOrder[itemIndex];
                 const priceIndex = items[id].indexOf(price);
-                console.log('priceIndex:', priceIndex);
                 if (priceIndex > -1) {
                     items[id].splice(priceIndex, 1);
                     if (items[id].length === 0) {
                         delete items[id];
                     }
-                    console.log("items[id]: ", items[id]);
                 }
                 itemOrder.splice(itemIndex, 1);
-                console.log("itemOrder: ", itemOrder);
-                console.log("currentBuyer: ", currentBuyer);
                 currentBuyer.splice(itemToRemove - 1, 1);
-                console.log("currentBuyer: ", currentBuyer);
                 updateItemList();
                 updateFoldableContent();
                 updateData();
@@ -183,11 +175,12 @@
                         console.log(item);
                         const itemId = item.id;
                         const itemPrice = parseFloat(item.price);
+                        consst itemBuyer = item.buyer;
                         if (!items[itemId]) {
                             items[itemId] = [];
                         }
                         items[itemId].push(itemPrice);
-                        itemOrder.push({ id: itemId, price: itemPrice });
+                        itemOrder.push({ id: itemId, price: itemPrice, buyer: itemBuyer });
                     });
                     updateItemList();
                     // Update the foldable section
@@ -254,7 +247,7 @@
             if (itemOrder.length > 0) {
                 // Remove the last item from the order array
                 const lastItem = itemOrder.pop();
-                const { id, price } = lastItem;
+                const { id, price, buyer } = lastItem;
 
                 // Remove the price from the dictionary
                 const priceIndex = items[id].indexOf(price);
