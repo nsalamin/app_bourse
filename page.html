@@ -23,11 +23,12 @@
     </style>
 </head>
 <body>
+    <h2>Vente en cours</h2>
     <form id="itemForm">
         <label for="itemId">Num&eacutero vendeur:</label>
         <input type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
         <label for="itemPrice">Prix:</label>
-        <input type="number" id="Prix" name="itemPrice" step="0.01" required><br><br>
+        <input type="number" id="Prix" name="itemPrice" step="0.01" required>&nbsp;&nbsp;
         <button type="submit">Ajoute une vente</button>
     </form>
 
@@ -36,7 +37,7 @@
     <p></p>
 
     <div class="foldable-section">
-        <div class="foldable-header" onclick="toggleFoldableContent()">Liste des prix et total</div>
+        <div class="foldable-header" onclick="toggleFoldableContent()">Liste des achats et prix total de la vente</div>
         <div class="foldable-content" id="foldableContent">
             <ol id="priceList"></ol>
             <p>Total: <span id="totalPrice">0.00</span></p>
@@ -50,10 +51,16 @@
 
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
-    <h2>Liste des acheteurs et leurs ventes</h2>
-    <ul id="itemList"></ul>
-
-    <button id="loadCSVFile">Upload un fichier CSV</button>
+    <h2>Vue des ventes jusqu'à maintenant</h2>
+    <div class="foldable-section">
+        <p>Nombre d'acheteurs: <span id="nbBuyer">0</span></p>
+        <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
+        <div class="foldable-header" onclick="toggleFoldableContent()">Tableau des vendeurs et leurs ventes</div>
+        <div class="foldable-content" id="foldableTable">
+            <ul id="itemList"></ul>
+        </div>
+        <button id="loadCSVFile">Upload un fichier CSV</button>
+    </div>
 
     <script>
         // Dictionary to store items
@@ -75,6 +82,7 @@
             currentItem = itemOrder.length;
             currentBuyerID++;
             currentBuyer = [];
+            document.getElementById('nbBuyer').textContent = currentBuyerID;
             updateFoldableContent();
         });
 
@@ -89,12 +97,11 @@
             // Add the price to the array for the given item ID
             if (!items[itemId]) {
                 items[itemId] = [];
+                document.getElementById('nbSeller').textContent = Object.keys(items).length;
             }
             items[itemId].push(itemPrice);
             itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID });
             currentBuyer.push({ id: itemId, price: itemPrice });
-
-            console.log("itemOrder: ", itemOrder);
 
             // Update the item list display
             updateItemList();
@@ -126,6 +133,7 @@
                     if (items[id].length === 0) {
                         delete items[id];
                     }
+                    document.getElementById('nbSeller').textContent = Object.keys(items).length;
                 }
                 itemOrder.splice(itemIndex, 1);
                 currentBuyer.splice(itemToRemove - 1, 1);
@@ -257,6 +265,7 @@
                     if (items[id].length === 0) {
                         delete items[id];
                     }
+                    document.getElementById('nbSeller').textContent = Object.keys(items).length;
                 }
 
                 //Remove the last price from the current buyer
@@ -272,7 +281,7 @@
         }
 
         function toggleFoldableContent() {
-            const content = document.getElementById('foldableContent');
+            const content = document.getElementById('foldableTable');
             if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
             } else {
