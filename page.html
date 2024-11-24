@@ -1,179 +1,336 @@
-<form id="itemForm">
-    <label for="itemId">Num&eacutero vendeur:</label>
-    <input type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
-    <label for="itemPrice">Prix:</label>
-    <input type="number" id="Prix" name="itemPrice" step="0.01" required><br><br>
-    <button type="submit">Ajoute une vente</button>
-</form>
-
-<!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button> -->
-
-<h2>Liste des acheteurs et leurs ventes</h2>
-<ul id="itemList"></ul>
-<button id="removeLastItem">Enl&egraveve la derni&egravere vente</button>
-
-<button id="loadCSVFile">Upload un fichier CSV</button>
-
-<script>
-    // Dictionary to store items
-    let items = {};
-    // Array to keep track of the order in which items are added
-    let itemOrder = [];
-
-    document.getElementById('itemForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        // Get item details
-        const itemId = document.getElementById('Numero vendeur').value;
-        let itemPrice = parseFloat(document.getElementById('Prix').value);
-        itemPrice = itemPrice.toFixed(2);
-
-        // Add the price to the array for the given item ID
-        if (!items[itemId]) {
-            items[itemId] = [];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventes</title>
+    <style>
+        .foldable-section {
+            margin-bottom: 20px;
         }
-        items[itemId].push(itemPrice);
-        itemOrder.push({ id: itemId, price: itemPrice });
+        .foldable-header {
+            cursor: pointer;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .foldable-content {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>Vente en cours</h2>
+    <form id="itemForm">
+        <label for="itemId">Num&eacutero vendeur:</label>
+        <input type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
+        <label for="itemPrice">Prix:</label>
+        <input type="number" id="Prix" name="itemPrice" step="0.01" required>&nbsp;&nbsp;
+        <button type="submit">Ajoute une vente</button>
+    </form>
 
-        // Update the item list display
-        updateItemList();
+    <p></p>
+    <button id="newBuyer">Nouveau ticket</button>
+    <p></p>
 
-        // Clear the form
-        document.getElementById('itemForm').reset();
-        document.getElementById('Numero vendeur').focus()
+    <div class="foldable-section">
+        <div class="foldable-header" onclick="toggleFoldableContent()">Liste des achats et prix total de la vente</div>
+        <div class="foldable-content" id="foldableContent">
+            <ol id="priceList"></ol>
+            <p>Total: <span id="totalPrice">0.00</span></p>
+        </div>
+    </div>
 
-        // Send the entire items dictionary to the server to overwrite the CSV file
-        updateData();
-    });
+    <p>
+    <button id="removeLastItem">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
+    <button id="removeItem">Enl&egraveve l'achat: </button><input type="text" id="itemToRemove" name="item to remove">
+    </p>
 
-    document.getElementById('removeLastItem').addEventListener('click', function() {
-        removeLastItem();
-    });
+    <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
-    document.getElementById('loadCSVFile').addEventListener('click', loadCSV);
+    <h2>Résumé des ventes jusqu'à présent</h2>
+    <div class="foldable-section">
+        <p>Nombre d'acheteurs ayant pay&eacute;: <span id="nbBuyer">0</span></p>
+        <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
+        <div class="foldable-header" onclick="toggleFoldableTable()">Tableau des vendeurs et leurs ventes</div>
+        <div class="foldable-content" id="foldableTable">
+            <ul id="itemList"></ul>
+        </div>
+        <button id="loadCSVFile">Upload un fichier CSV</button>
+    </div>
 
-    // document.getElementByID('saveToCSV').addEventListener('click', function() {
-    //     fetch('http://localhost:3000/saveToCSV', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(items)
-    //     })
-    //     .then(response => response.text())
-    //     .then(data => console.log(data))
-    //     .catch(error => console.error('Error:', error));
-    // });
+    <script>
+        // Dictionary to store items
+        let items = {};
+        // Array to keep track of the order     in which items are added
+        let itemOrder = [];
+        // Array to keep track of the item bought by current buyer
+        let currentBuyerID = 0;
+        let currentBuyer = [];
+        // Dictionary to store all buyers
+        let allBuyers = {};
+        // Variable to keep track in the itemOrder array of the start of the current buyer
+        let currentItem = 0;
 
-    function updateItemList() {
-        const itemList = document.getElementById('itemList');
-        itemList.innerHTML = '';
-
-        // Create a table element
-        const table = document.createElement('table');
-        table.border = '1';
-        table.style.borderCollapse = 'collapse'; // Optional: to collapse borders
-        table.style.width = '100%'; // Optional: to make the table full width
-
-        // Create the header row
-        const headerRow = document.createElement('tr');
-        const headers = ['Vendeur', 'Prix', 'Vente total'];
-        headers.forEach(headerText => {
-            const header = document.createElement('th');
-            header.textContent = headerText;
-            header.style.padding = '8px'; // Add padding
-            headerRow.appendChild(header);
-        });
-        table.appendChild(headerRow);
-
-        // Display all items in the dictionary
-        Object.entries(items).forEach(([id, prices]) => {
-            const row = document.createElement('tr');
-
-            // Create and append the ID cell
-            const idCell = document.createElement('td');
-            idCell.textContent = id;
-            idCell.style.padding = '8px'; // Add padding
-            row.appendChild(idCell);
-
-            // Create and append the Prices cell
-            const pricesCell = document.createElement('td');
-            pricesCell.textContent = prices.map(price => parseFloat(price).toFixed(2)).join(', ');
-            pricesCell.style.padding = '8px'; // Add padding
-            row.appendChild(pricesCell);
-
-            // Create and append the Total cell
-            const totalCell = document.createElement('td');
-            const totalSales = prices.reduce((sum, price) => sum + parseFloat(price), 0);
-            totalCell.textContent = totalSales.toFixed(2);
-            totalCell.style.padding = '8px'; // Add padding
-            row.appendChild(totalCell);
-
-            table.appendChild(row);
-        });
-
-        // Append the table to the itemList element
-        itemList.appendChild(table);
-    }
-
-    function removeLastItem() {
-        if (itemOrder.length > 0) {
-            // Remove the last item from the order array
-            const lastItem = itemOrder.pop();
-            const { id, price } = lastItem;
-
-            // Remove the price from the dictionary
-            const priceIndex = items[id].indexOf(price);
-            if (priceIndex > -1) {
-                items[id].splice(priceIndex, 1);
-                if (items[id].length === 0) {
-                    delete items[id];
-                }
+        document.getElementById('newBuyer').addEventListener('click', function() {
+            if (allBuyers.length > 0) {
+                allBuyers.push(currentBuyer);
             }
+            currentItem = itemOrder.length;
+            currentBuyerID++;
+            currentBuyer = [];
+            document.getElementById('nbBuyer').textContent = currentBuyerID;
+            updateFoldableContent();
+        });
+
+        document.getElementById('itemForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get item details
+            const itemId = document.getElementById('Numero vendeur').value;
+            let itemPrice = parseFloat(document.getElementById('Prix').value);
+            itemPrice = itemPrice.toFixed(2);
+
+            // Add the price to the array for the given item ID
+            if (!items[itemId]) {
+                items[itemId] = [];
+                document.getElementById('nbSeller').textContent = Object.keys(items).length;
+            }
+            items[itemId].push(itemPrice);
+            itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID });
+            currentBuyer.push({ id: itemId, price: itemPrice });
 
             // Update the item list display
             updateItemList();
+            // Update the foldable section
+            updateFoldableContent();
 
-            // Send the entire items dictionary to the server to overwrite the CSV file
+            // Clear the form
+            document.getElementById('itemForm').reset();
+            document.getElementById('Numero vendeur').focus()
+
+            // Send the entire items dictionary to the server to    overwrite the CSV file
             updateData();
-        }
-    }
+        });
 
-    function updateData() {
-        fetch('http://localhost:3000/saveToCSV', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(itemOrder) // use { items, itemOrder } to send both
-        })
-        .then(response => response.text())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
-    }
+        document.getElementById('removeLastItem').addEventListener('click', function() {
+            removeLastItem();
+        });
 
-    function loadCSV() {
-        items = {};
-        itemOrder = [];
+        document.getElementById('removeItem').addEventListener('click', function() {
+            const itemToRemove = document.getElementById('itemToRemove').value;
 
-        fetch('http://localhost:3000/loadCSV')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(item => {
-                    console.log(item);
-                    const itemId = item.id;
-                    const itemPrice = parseFloat(item.price);
-                    if (!items[itemId]) {
-                        items[itemId] = [];
+            const itemIndex = currentItem + parseInt(itemToRemove) - 1;
+
+            if (itemIndex > -1) {
+                const { id, price, buyer } = itemOrder[itemIndex];
+                const priceIndex = items[id].indexOf(price);
+                if (priceIndex > -1) {
+                    items[id].splice(priceIndex, 1);
+                    if (items[id].length === 0) {
+                        delete items[id];
                     }
-                    items[itemId].push(itemPrice);
-                    itemOrder.push({ id: itemId, price: itemPrice });
-                });
+                    document.getElementById('nbSeller').textContent = Object.keys(items).length;
+                }
+                itemOrder.splice(itemIndex, 1);
+                currentBuyer.splice(itemToRemove - 1, 1);
                 updateItemList();
-            })
-            .catch(error => console.error('Error loading CSV:', error));
-    }
+                updateFoldableContent();
+                updateData();
+            }
+            document.getElementById('itemToRemove').value = "";
+        });
 
-    // Call loadCSV when the page loads
-    window.onload = loadCSV;
-</script>
+        document.getElementById('loadCSVFile').addEventListener('click', loadCSV);
+
+        // document.getElementByID('saveToCSV').addEventListener('click', function() {
+        //     fetch('http://localhost:3000/saveToCSV', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify(items)
+        //     })
+        //     .then(response => response.text())
+        //     .then(data => console.log(data))
+        //     .catch(error => console.error('Error:', error));
+        // });
+
+        function updateData() {
+            fetch('http://localhost:3000/saveToCSV', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(itemOrder) // use { items,     itemOrder } to send both
+            })
+            .then(response => response.text ())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function loadCSV() {
+            items = {};
+            itemOrder = [];
+            currentBuyer = [];
+
+            fetch('http://localhost:3000/loadCSV')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(item => {
+                        console.log(item);
+                        const itemId = item.id;
+                        const itemPrice = parseFloat(item.price);
+                        const itemBuyer = item.buyer;
+                        if (!items[itemId]) {
+                            items[itemId] = [];
+                        }
+                        items[itemId].push(itemPrice);
+                        itemOrder.push({ id: itemId, price: itemPrice, buyer: itemBuyer });
+                    });
+                    updateItemList();
+                    // Update the foldable section
+                    updateFoldableContent();
+                })
+                .catch(error => console.error('Error loading CSV:', error));
+        }
+
+        // Call loadCSV when the page loads
+        window.onload = loadCSV;
+
+        function updateItemList() {
+            const itemList = document.getElementById('itemList');
+            itemList.innerHTML = '';
+
+            // Create a table element
+            const table = document.createElement('table');
+            table.border = '1';
+            table.style.borderCollapse = 'collapse'; // Optional: to    collapse borders
+            table.style.width = '100%'; //  Optional: to make the table full     width
+
+            // Create the header row
+            const headerRow = document.createElement('tr');
+            const headers = ['Vendeur', 'Prix', 'Vente total'];
+            headers.forEach(headerText => {
+                const header = document.createElement('th');
+                header.textContent = headerText;
+                header.style.padding = '8px'; // Add padding
+                headerRow.appendChild(header);
+            });
+            table.appendChild(headerRow);
+
+            // Display all items in the dictionary
+            Object.entries(items).forEach(([id, prices]) => {
+                const row = document.createElement('tr');
+
+                // Create and append the ID cell
+                const idCell = document.createElement('td');
+                idCell.textContent = id;
+                idCell.style.padding =  '8px'; // Add padding
+                row.appendChild(idCell);
+
+                // Create and append the Prices cell
+                const pricesCell = document.createElement('td');
+                pricesCell.textContent = prices.map(price => parseFloat(price).toFixed(2)).join(', ');
+                pricesCell.style.padding = '8px'; // Add padding
+                row.appendChild(pricesCell);
+
+                // Create and append the Total cell
+                const totalCell = document.createElement('td');
+                const totalSales = prices.reduce((sum, price) => sum + parseFloat(price), 0);
+                totalCell.textContent = totalSales.toFixed(2);
+                totalCell.style.padding ='8px'; // Add padding
+                row.appendChild(totalCell);
+
+                table.appendChild(row);
+            });
+
+            // Append the table to the  itemList element
+            itemList.appendChild(table);
+
+            // Automatically open the foldable content if it is hidden and there are items
+            const content = document.getElementById('foldableTable');
+            content.style.display = 'block';
+        }
+
+        function removeLastItem() {
+            if (itemOrder.length > 0) {
+                // Remove the last item from the order array
+                const lastItem = itemOrder.pop();
+                const { id, price, buyer } = lastItem;
+
+                // Remove the price from the dictionary
+                const priceIndex = items[id].indexOf(price);
+                if (priceIndex > -1) {
+                    items[id].splice(priceIndex, 1);
+                    if (items[id].length === 0) {
+                        delete items[id];
+                    }
+                    document.getElementById('nbSeller').textContent = Object.keys(items).length;
+                }
+
+                //Remove the last price from the current buyer
+                currentBuyer.pop();
+                // Update the item list     display
+                updateItemList();
+                // Update the foldable section
+                updateFoldableContent();
+
+                // Send the entire items    dictionary to the server to    overwrite the CSV file
+                updateData();
+            }
+        }
+
+        function toggleFoldableContent() {
+            const content = document.getElementById('foldableContent');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+
+        function toggleFoldableTable() {
+            const content = document.getElementById('foldableTable');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+
+        function updateFoldableContent() {
+            const priceList = document.getElementById('priceList');
+            const totalPrice = document.getElementById('totalPrice');
+            priceList.innerHTML = '';
+
+            let total = 0;
+            console.log('Updating foldable content with currentBuyer:', currentBuyer);
+            currentBuyer.forEach(({ id, price }, index) => {
+                console.log('Adding this price:', parseFloat(price).toFixed(2));
+
+                if (price === undefined) {
+                    console.log("Price is undefined");
+                    return;
+                }
+                
+                const li = document.createElement('li');
+                li.textContent = `Achat ${index + 1}: ${price} (vendeur ${id})`;
+                priceList.appendChild(li);
+                total += parseFloat(price);
+            });
+
+            totalPrice.textContent = parseFloat(total).toFixed(2);
+
+            // Automatically open the foldable content if it is hidden and there are items
+            const content = document.getElementById('foldableContent');
+            if (currentBuyer.length > 0) {
+                content.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
