@@ -263,6 +263,12 @@
             });
 
             totalPrice.textContent = parseFloat(total).toFixed(2);
+
+            // Automatically open the foldable content if it is hidden and there are items
+            const content = document.getElementById('foldableContent');
+            if (currentBuyer.length > 0) {
+                content.style.display = 'block';
+            }
         }
     </script>
 </body>
