@@ -36,7 +36,7 @@
     </style>
 </head>
 <body>
-    <h2>Vente en cours</h2>
+    <h2>Vente en cours - Acheteur <span id="buyInProgress">1</span></h2>
     <form id="itemForm">
         <label for="itemId">Num&eacutero vendeur:</label>
         <input type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
@@ -64,9 +64,9 @@
 
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
+    <hr>
     <h2>Résumé des ventes jusqu'à présent</h2>
     <div class="foldable-section">
-        <p>Nombre d'acheteurs ayant pay&eacute;: <span id="nbBuyer">0</span></p>
         <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
         <div class="foldable-header" onclick="toggleFoldable('foldableSeller')">Tableau des vendeurs et leurs ventes</div>
         <div class="foldable-content" id="foldableSeller">
@@ -75,8 +75,10 @@
         <button id="loadCSVFile">Upload un fichier CSV</button>
     </div>
 
+    <hr>
     <h2>Résumé des acheteurs</h2>
     <div class="foldable-section">
+        <p>Nombre d'acheteurs et leurs achats: <span id="nbBuyer">0</span></p>
         <div class="foldable-header" onclick="toggleFoldable('foldableBuyer')">Tableau des acheteurs et leurs achats</div>
         <div class="foldable-content" id="foldableBuyer">
             <div id="buyerTiles" class="buyer-tiles-container"></div>
@@ -106,11 +108,12 @@
             currentBuyerID++;
             currentBuyer = [];
             document.getElementById('nbBuyer').textContent = currentBuyerID;
+            document.getElementById('buyInProgress').textContent = currentBuyerID + 1;
             updateTicketAcheteur();
             updateBuyerList();
         });
 
-        document.getElementById('itemForm').addEventListener('submit', function (event) {
+        document.getElementById('itemForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
             // Get item details
@@ -136,7 +139,7 @@
             document.getElementById('itemForm').reset();
             document.getElementById('Numero vendeur').focus()
 
-            // Send the entire items dictionary to the server to    overwrite the CSV file
+            // Send the entire items dictionary to the server to overwrite the CSV file
             updateData();
         });
 
@@ -223,6 +226,7 @@
                 const header = document.createElement('th');
                 header.textContent = headerText;
                 header.style.padding = '8px'; // Add padding
+                header.style.backgroundColor = '#f9f9f9';
                 headerRow.appendChild(header);
             });
             table.appendChild(headerRow);
