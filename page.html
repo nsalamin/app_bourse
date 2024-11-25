@@ -83,7 +83,7 @@
             currentBuyerID++;
             currentBuyer = [];
             document.getElementById('nbBuyer').textContent = currentBuyerID;
-            updateFoldableContent();
+            updateTicketAcheteur();
         });
 
         document.getElementById('itemForm').addEventListener('submit', function (event) {
@@ -106,7 +106,7 @@
             // Update the item list display
             updateItemList();
             // Update the foldable section
-            updateFoldableContent();
+            updateTicketAcheteur();
 
             // Clear the form
             document.getElementById('itemForm').reset();
@@ -174,7 +174,7 @@
                     });
                     updateItemList();
                     // Update the foldable section
-                    updateFoldableContent();
+                    updateTicketAcheteur();
                 })
                 .catch(error => console.error('Error loading CSV:', error));
         }
@@ -194,7 +194,7 @@
 
             // Create the header row
             const headerRow = document.createElement('tr');
-            const headers = ['Vendeur', 'Prix', 'Vente total'];
+            const headers = ['Vendeur', 'Prix', 'Vente total', 'Nombre articles'];
             headers.forEach(headerText => {
                 const header = document.createElement('th');
                 header.textContent = headerText;
@@ -211,12 +211,15 @@
                 const idCell = document.createElement('td');
                 idCell.textContent = id;
                 idCell.style.padding =  '8px'; // Add padding
+                idCell.style.width = '10%';
                 row.appendChild(idCell);
 
                 // Create and append the Prices cell
                 const pricesCell = document.createElement('td');
                 pricesCell.textContent = prices.map(price => parseFloat(price).toFixed(2)).join(', ');
                 pricesCell.style.padding = '8px'; // Add padding
+                pricesCell.style.width = '75%'; // Optional: to make the cell take up 50% of the width
+                pricesCell.style.textAlign = 'right';
                 row.appendChild(pricesCell);
 
                 // Create and append the Total cell
@@ -224,7 +227,18 @@
                 const totalSales = prices.reduce((sum, price) => sum + parseFloat(price), 0);
                 totalCell.textContent = totalSales.toFixed(2);
                 totalCell.style.padding ='8px'; // Add padding
+                totalCell.style.width = '10%';
+                totalCell.style.textAlign = 'right';
                 row.appendChild(totalCell);
+
+                // Create and append the Number of items cell
+                const nbItemsCell = document.createElement('td');
+                const nbItems = prices.length;
+                nbItemsCell.textContent = nbItems;
+                nbItemsCell.style.padding = '8px'; // Add padding
+                nbItemsCell.style.width = '5%';
+                nbItemsCell.style.textAlign = 'right';
+                row.appendChild(nbItemsCell);
 
                 table.appendChild(row);
             });
@@ -239,7 +253,7 @@
 
         function removeItem(whichOne) {
             let itemIndex = 0;
-            
+
             if (whichOne === "last") {
                 itemIndex = itemOrder.length - 1; //last item in itemOrder
             }
@@ -263,7 +277,7 @@
                 itemOrder.splice(itemIndex, 1);
                 currentBuyer.splice(itemIndex - currentItem, 1); //need to subtract currentItem to get the correct index in currentBuyer
                 updateItemList();
-                updateFoldableContent();
+                updateTicketAcheteur();
                 updateData();
             }
             document.getElementById('itemToRemove').value = "";
@@ -287,7 +301,7 @@
             }
         }
 
-        function updateFoldableContent() {
+        function updateTicketAcheteur() {
             const priceList = document.getElementById('priceList');
             const totalPrice = document.getElementById('totalPrice');
             priceList.innerHTML = '';
