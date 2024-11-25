@@ -78,8 +78,8 @@
         // Array to keep track of the item bought by current buyer
         let currentBuyerID = 0;
         let currentBuyer = [];
-        // Dictionary to store all buyers
-        let allBuyers = {};
+        // array to store all buyers: index is the current buyer ID, element is { currentBuyer array + timestamp }
+        let allBuyers = [];
         // Variable to keep track in the itemOrder array of the start of the current buyer
         let currentItem = 0;
 
