@@ -55,11 +55,19 @@
     <div class="foldable-section">
         <p>Nombre d'acheteurs ayant pay&eacute;: <span id="nbBuyer">0</span></p>
         <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
-        <div class="foldable-header" onclick="toggleFoldableTable()">Tableau des vendeurs et leurs ventes</div>
-        <div class="foldable-content" id="foldableTable">
+        <div class="foldable-header" onclick="toggleFoldableSeller()">Tableau des vendeurs et leurs ventes</div>
+        <div class="foldable-content" id="foldableSeller">
             <ul id="itemList"></ul>
         </div>
         <button id="loadCSVFile">Upload un fichier CSV</button>
+    </div>
+
+    <h2>Résumé des acheteurs</h2>
+    <div class="foldable-section">
+        <div class="foldable-header" onclick="toggleFoldableBuyer()">Tableau des acheteurs et leurs achats</div>
+        <div class="foldable-content" id="foldableBuyer">
+            <ul id="buyerList"></ul>
+        </div>
     </div>
 
     <script>
@@ -292,7 +300,7 @@
             }
         }
 
-        function toggleFoldableTable() {
+        function toggleFoldableSeller() {
             const content = document.getElementById('foldableTable');
             if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
