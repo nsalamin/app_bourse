@@ -37,7 +37,7 @@
     <p></p>
 
     <div class="foldable-section">
-        <div class="foldable-header" onclick="toggleFoldableTicket()">Liste des achats et prix total de la vente</div>
+        <div class="foldable-header" onclick="toggleFoldable('foldableTicket')">Liste des achats et prix total de la vente</div>
         <div class="foldable-content" id="foldableTicket">
             <ol id="priceList"></ol>
             <p>Total: <span id="totalPrice">0.00</span></p>
@@ -55,7 +55,7 @@
     <div class="foldable-section">
         <p>Nombre d'acheteurs ayant pay&eacute;: <span id="nbBuyer">0</span></p>
         <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
-        <div class="foldable-header" onclick="toggleFoldableSeller()">Tableau des vendeurs et leurs ventes</div>
+        <div class="foldable-header" onclick="toggleFoldable('foldableSeller')">Tableau des vendeurs et leurs ventes</div>
         <div class="foldable-content" id="foldableSeller">
             <ul id="itemList"></ul>
         </div>
@@ -64,7 +64,7 @@
 
     <h2>Résumé des acheteurs</h2>
     <div class="foldable-section">
-        <div class="foldable-header" onclick="toggleFoldableBuyer()">Tableau des acheteurs et leurs achats</div>
+        <div class="foldable-header" onclick="toggleFoldable('foldableBuyer')">Tableau des acheteurs et leurs achats</div>
         <div class="foldable-content" id="foldableBuyer">
             <ul id="buyerList"></ul>
         </div>
@@ -293,17 +293,8 @@
             document.getElementById('itemToRemove').value = "";
         }
 
-        function toggleFoldableTicket() {
-            const content = document.getElementById('foldableTicket');
-            if (content.style.display === 'none' || content.style.display === '') {
-                content.style.display = 'block';
-            } else {
-                content.style.display = 'none';
-            }
-        }
-
-        function toggleFoldableSeller() {
-            const content = document.getElementById('foldableSeller');
+        function toggleFoldable(id) {
+            const content = document.getElementById(id);
             if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
             } else {
