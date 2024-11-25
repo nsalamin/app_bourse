@@ -84,6 +84,9 @@
         let currentItem = 0;
 
         document.getElementById('newBuyer').addEventListener('click', function() {
+            if (currentBuyer.length === 0) {
+                return;
+            }
             allBuyers.push({ buy: currentBuyer, time: new Date() });
             console.log('allBuyers:', allBuyers);
             currentItem = itemOrder.length;
