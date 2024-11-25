@@ -37,8 +37,8 @@
     <p></p>
 
     <div class="foldable-section">
-        <div class="foldable-header" onclick="toggleFoldableContent()">Liste des achats et prix total de la vente</div>
-        <div class="foldable-content" id="foldableContent">
+        <div class="foldable-header" onclick="toggleFoldableTicket()">Liste des achats et prix total de la vente</div>
+        <div class="foldable-content" id="foldableTicket">
             <ol id="priceList"></ol>
             <p>Total: <span id="totalPrice">0.00</span></p>
         </div>
@@ -84,9 +84,8 @@
         let currentItem = 0;
 
         document.getElementById('newBuyer').addEventListener('click', function() {
-            if (allBuyers.length > 0) {
-                allBuyers.push(currentBuyer);
-            }
+            allBuyers.push({ buy: currentBuyer, time: new Date() });
+            console.log('allBuyers:', allBuyers);
             currentItem = itemOrder.length;
             currentBuyerID++;
             currentBuyer = [];
@@ -255,7 +254,7 @@
             itemList.appendChild(table);
 
             // Automatically open the foldable content if it is hidden and there are items
-            const content = document.getElementById('foldableTable');
+            const content = document.getElementById('foldableSeller');
             content.style.display = 'block';
         }
 
@@ -291,8 +290,8 @@
             document.getElementById('itemToRemove').value = "";
         }
 
-        function toggleFoldableContent() {
-            const content = document.getElementById('foldableContent');
+        function toggleFoldableTicket() {
+            const content = document.getElementById('foldableTicket');
             if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
             } else {
@@ -301,7 +300,7 @@
         }
 
         function toggleFoldableSeller() {
-            const content = document.getElementById('foldableTable');
+            const content = document.getElementById('foldableSeller');
             if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
             } else {
@@ -333,7 +332,7 @@
             totalPrice.textContent = parseFloat(total).toFixed(2);
 
             // Automatically open the foldable content if it is hidden and there are items
-            const content = document.getElementById('foldableContent');
+            const content = document.getElementById('foldableTicket');
             if (currentBuyer.length > 0) {
                 content.style.display = 'block';
             }
