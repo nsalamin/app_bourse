@@ -20,6 +20,19 @@
             border: 1px solid #ccc;
             border-top: none;
         }
+        .buyer-tile {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            background-color: #f9f9f9;
+            flex: 1 1 calc(15% - 5px);
+            box-sizing: border-box;
+        }
+        .buyer-tiles-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -66,7 +79,7 @@
     <div class="foldable-section">
         <div class="foldable-header" onclick="toggleFoldable('foldableBuyer')">Tableau des acheteurs et leurs achats</div>
         <div class="foldable-content" id="foldableBuyer">
-            <ul id="buyerList"></ul>
+            <div id="buyerTiles" class="buyer-tiles-container"></div>
         </div>
     </div>
 
@@ -87,13 +100,14 @@
             if (currentBuyer.length === 0) {
                 return;
             }
-            allBuyers.push({ buy: currentBuyer, time: new Date() });
+            allBuyers.push({ buy: currentBuyer, time: new Date().toLocaleString('fr-CH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) });
             console.log('allBuyers:', allBuyers);
             currentItem = itemOrder.length;
             currentBuyerID++;
             currentBuyer = [];
             document.getElementById('nbBuyer').textContent = currentBuyerID;
             updateTicketAcheteur();
+            updateBuyerList();
         });
 
         document.getElementById('itemForm').addEventListener('submit', function (event) {
@@ -259,6 +273,25 @@
             // Automatically open the foldable content if it is hidden and there are items
             const content = document.getElementById('foldableSeller');
             content.style.display = 'block';
+        }
+
+        function updateBuyerList() {
+            const buyerTiles = document.getElementById('buyerTiles');
+            buyerTiles.innerHTML = '';
+
+            allBuyers.forEach((buyer, index) => {
+                const buyerTile = document.createElement('div');
+                buyerTile.className = 'buyer-tile';
+                buyerTile.innerHTML = `
+                    <h3>Acheteur ${index + 1}</h3>
+                    <p>Quand: ${buyer.time}</p>
+                    <ul>
+                        ${buyer.buy.map(({ id, price }) => `<li>${price} (vendeur ${id})</li>`).join('')}
+                    </ul>
+                    <p>Total: ${buyer.buy.reduce((sum, { price }) => sum + parseFloat(price), 0).toFixed(2)}</p>
+                `;
+                buyerTiles.appendChild(buyerTile);
+            });
         }
 
         function removeItem(whichOne) {
