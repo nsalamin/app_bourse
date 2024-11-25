@@ -117,31 +117,12 @@
         });
 
         document.getElementById('removeLastItem').addEventListener('click', function() {
-            removeLastItem();
+            removeItem("last");
         });
 
         document.getElementById('removeItem').addEventListener('click', function() {
             const itemToRemove = document.getElementById('itemToRemove').value;
-
-            const itemIndex = currentItem + parseInt(itemToRemove) - 1;
-
-            if (itemIndex > -1) {
-                const { id, price, buyer } = itemOrder[itemIndex];
-                const priceIndex = items[id].indexOf(price);
-                if (priceIndex > -1) {
-                    items[id].splice(priceIndex, 1);
-                    if (items[id].length === 0) {
-                        delete items[id];
-                    }
-                    document.getElementById('nbSeller').textContent = Object.keys(items).length;
-                }
-                itemOrder.splice(itemIndex, 1);
-                currentBuyer.splice(itemToRemove - 1, 1);
-                updateItemList();
-                updateFoldableContent();
-                updateData();
-            }
-            document.getElementById('itemToRemove').value = "";
+            removeItem(itemToRemove);
         });
 
         document.getElementById('loadCSVFile').addEventListener('click', loadCSV);
@@ -256,14 +237,24 @@
             content.style.display = 'block';
         }
 
-        function removeLastItem() {
-            if (itemOrder.length > 0) {
-                // Remove the last item from the order array
-                const lastItem = itemOrder.pop();
-                const { id, price, buyer } = lastItem;
+        function removeItem(whichOne) {
+            console.log("whichOne: ", whichOne)
+            let itemIndex = 0;
+            if (whichOne === "last") {
+                console.log("In if for last");
+                itemIndex = itemOrder.length - 1;
+            }
+            else {
+                console.log("In if for other index");
+                itemIndex = currentItem + parseInt(whichOne) - 1;
+            }
+            console.log("itemIndex: ", itemIndex);
 
-                // Remove the price from the dictionary
+            if (itemIndex > -1) {
+                const { id, price, buyer } = itemOrder[itemIndex];
+                console.log("item to remove: ", id, price, buyer);
                 const priceIndex = items[id].indexOf(price);
+                console.log("index in items[id]: ", priceIndex);
                 if (priceIndex > -1) {
                     items[id].splice(priceIndex, 1);
                     if (items[id].length === 0) {
@@ -271,17 +262,13 @@
                     }
                     document.getElementById('nbSeller').textContent = Object.keys(items).length;
                 }
-
-                //Remove the last price from the current buyer
-                currentBuyer.pop();
-                // Update the item list     display
+                itemOrder.splice(itemIndex, 1);
+                currentBuyer.splice(itemIndex, 1);
                 updateItemList();
-                // Update the foldable section
                 updateFoldableContent();
-
-                // Send the entire items    dictionary to the server to    overwrite the CSV file
                 updateData();
             }
+            document.getElementById('itemToRemove').value = "";
         }
 
         function toggleFoldableContent() {
