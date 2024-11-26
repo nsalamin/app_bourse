@@ -184,6 +184,8 @@
             items = {};
             itemOrder = [];
             currentBuyer = [];
+            allBuyers = {};
+            currentBuyerID = 0;
 
             fetch('http://localhost:3000/loadCSV')
                 .then(response => response.json())
@@ -273,6 +275,10 @@
 
             // Append the table to the  itemList element
             itemList.appendChild(table);
+
+            document.getElementById('nbSeller').textContent = Object.keys(items).length;
+            console.log('nb items: ', Object.keys(items).length)
+            document.getElementById('nbBuyer').textContent = currentBuyerID;
 
             // Automatically open the foldable content if it is hidden and there are items
             const content = document.getElementById('foldableSeller');
