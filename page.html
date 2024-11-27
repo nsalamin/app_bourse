@@ -91,7 +91,7 @@
         // Array to keep track of the order     in which items are added
         let itemOrder = [];
         // Array to keep track of the item bought by current buyer
-        let currentBuyerID = 0;
+        let currentBuyerID = 1;
         let currentBuyer = [];
         // array to store all buyers: index is the current buyer ID, element is { currentBuyer array + timestamp }
         let allBuyers = {};
@@ -102,15 +102,22 @@
             if (currentBuyer.length === 0) {
                 return;
             }
-            allBuyers[currentBuyerID] = { buy: currentBuyer, time: new Date().toLocaleString('fr-CH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) };
+            const timestamp = new Date().toLocaleString('fr-CH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            allBuyers[currentBuyerID] = { buy: currentBuyer, time: timestamp };
             console.log('allBuyers:', allBuyers);
+            itemOrder.forEach((item, index) => {
+                if (item.buyer === currentBuyerID) {
+                    item.time = timestamp;
+                }
+            });
             currentItem = itemOrder.length;
-            currentBuyerID++;
             currentBuyer = [];
             document.getElementById('nbBuyer').textContent = currentBuyerID;
-            document.getElementById('buyInProgress').textContent = currentBuyerID + 1;
+            currentBuyerID++; // next buyer is 1 more than the last buyer
+            document.getElementById('buyInProgress').textContent = currentBuyerID;
             updateTicketAcheteur();
             updateBuyerList();
+            updateData();
         });
 
         document.getElementById('itemForm').addEventListener('submit', function(event) {
@@ -127,7 +134,7 @@
                 document.getElementById('nbSeller').textContent = Object.keys(items).length;
             }
             items[itemId].push(itemPrice);
-            itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID });
+            itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID, time: "" });
             currentBuyer.push({ id: itemId, price: itemPrice });
 
             // Update the item list display
@@ -194,16 +201,33 @@
                         console.log(item);
                         const itemId = item.id;
                         const itemPrice = parseFloat(item.price);
-                        const itemBuyer = item.buyer;
+                        const itemBuyer = parseInt(item.buyer);
+                        const itemTime = item.time;
                         if (!items[itemId]) {
                             items[itemId] = [];
                         }
                         items[itemId].push(itemPrice);
-                        itemOrder.push({ id: itemId, price: itemPrice, buyer: itemBuyer });
+                        itemOrder.push({ id: itemId, price: itemPrice, buyer: itemBuyer, time: itemTime });
+                        console.log('itemBuyer:', itemBuyer);
+                        if (!allBuyers[itemBuyer]) {
+                            allBuyers[itemBuyer] = { buy: [], time: itemTime };
+                            console.log('initializing itemBuyer: ', itemBuyer);
+                        }
+                        allBuyers[itemBuyer].buy.push({ id: itemId, price: itemPrice });
+                        console.log('allBuyers:', allBuyers);
+                        if (itemBuyer > currentBuyerID) {
+                            currentBuyerID = itemBuyer;
+                        }
                     });
                     updateItemList();
                     // Update the foldable section
                     updateTicketAcheteur();
+                    updateBuyerList();
+
+                    document.getElementById('nbSeller').textContent = Object.keys(items).length;
+                    document.getElementById('nbBuyer').textContent = currentBuyerID;
+                    currentBuyerID++; // next buyer is 1 more than the last buyer
+                    document.getElementById('buyInProgress').textContent = currentBuyerID;
                 })
                 .catch(error => console.error('Error loading CSV:', error));
         }
@@ -276,10 +300,6 @@
             // Append the table to the  itemList element
             itemList.appendChild(table);
 
-            document.getElementById('nbSeller').textContent = Object.keys(items).length;
-            console.log('nb items: ', Object.keys(items).length)
-            document.getElementById('nbBuyer').textContent = currentBuyerID;
-
             // Automatically open the foldable content if it is hidden and there are items
             const content = document.getElementById('foldableSeller');
             content.style.display = 'block';
@@ -293,10 +313,10 @@
                 const buyerTile = document.createElement('div');
                 buyerTile.className = 'buyer-tile';
                 buyerTile.innerHTML = `
-                    <h3>Acheteur ${parseInt(key) + 1}</h3>
+                    <h3>Acheteur ${parseInt(key)}</h3>
                     <p>Quand: ${buyer.time}</p>
                     <ul>
-                        ${buyer.buy.map(({ id, price }) => `<li>${price} (vendeur ${id})</li>`).join('')}
+                        ${buyer.buy.map(({ id, price }) => `<li>${parseFloat(price).toFixed(2)} (vendeur ${id})</li>`).join('')}
                     </ul>
                     <p>Total: ${buyer.buy.reduce((sum, { price }) => sum + parseFloat(price), 0).toFixed(2)}</p>
                 `;
@@ -316,8 +336,8 @@
             console.log("itemIndex: ", itemIndex);
 
             if (itemIndex > -1) {
-                const { id, price, buyer } = itemOrder[itemIndex];
-                console.log("item to remove: ", id, price, buyer);
+                const { id, price, buyer, time } = itemOrder[itemIndex];
+                console.log("item to remove: ", id, price, buyer, time);
                 const priceIndex = items[id].indexOf(price);
                 console.log("index in items[id]: ", priceIndex);
                 if (priceIndex > -1) {

@@ -38,9 +38,9 @@ app.post('/saveToCSV', (req, res) => {
     const itemOrder = req.body;
     console.log('Received item order:', itemOrder);
 
-    const header = 'id,price,acheteur\n';
+    const header = 'id,price,buyer,time\n';
     
-    const csvLines = itemOrder.map(({ id, price, buyer }) => `${id},${price},${buyer + 1}`).join('\n');
+    const csvLines = itemOrder.map(({ id, price, buyer, time }) => `${id},${parseFloat(price).toFixed(2)},${buyer},${time}`).join('\n');
 
     const csvContent = header + csvLines;
 
