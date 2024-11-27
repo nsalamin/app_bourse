@@ -5,12 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ventes</title>
     <style>
+        .button {
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
         .foldable-section {
             margin-bottom: 20px;
         }
         .foldable-header {
             cursor: pointer;
-            background-color: #f0f0f0;
+            background-color: #e8f3fe;
             padding: 10px;
             border: 1px solid #ccc;
         }
@@ -24,8 +29,9 @@
             border: 1px solid #ccc;
             padding: 10px;
             margin: 10px;
-            background-color: #f9f9f9;
-            flex: 1 1 calc(15% - 5px);
+            background-color: #f9fbfe;
+            display: inline-block;
+            /* flex: 1 1 calc(15% - 5px); */
             box-sizing: border-box;
         }
         .buyer-tiles-container {
@@ -42,11 +48,8 @@
         <input type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
         <label for="itemPrice">Prix:</label>
         <input type="number" id="Prix" name="itemPrice" step="0.01" required>&nbsp;&nbsp;
-        <button type="submit">Ajoute une vente</button>
+        <button type="submit" class="button">Ajoute une vente</button>
     </form>
-
-    <p></p>
-    <button id="newBuyer">Nouveau ticket</button>
     <p></p>
 
     <div class="foldable-section">
@@ -58,9 +61,12 @@
     </div>
 
     <p>
-    <button id="removeLastItem">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
-    <button id="removeItem">Enl&egraveve l'achat: </button><input type="text" id="itemToRemove" name="item to remove">
+    <button id="removeLastItem" class="button">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
+    <button id="removeItem" class="button">Enl&egraveve l'achat: </button><input type="text" id="itemToRemove" name="item to remove">
     </p>
+    <p></p>
+    <button id="newBuyer" class="button">Valide cette vente et passe &agrave la suivante</button>
+    <p></p>
 
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
@@ -70,9 +76,8 @@
         <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
         <div class="foldable-header" onclick="toggleFoldable('foldableSeller')">Tableau des vendeurs et leurs ventes</div>
         <div class="foldable-content" id="foldableSeller">
-            <ul id="itemList"></ul>
+            <div id="itemList"></div>
         </div>
-        <button id="loadCSVFile">Upload un fichier CSV</button>
     </div>
 
     <hr>
@@ -84,6 +89,9 @@
             <div id="buyerTiles" class="buyer-tiles-container"></div>
         </div>
     </div>
+    <hr>
+    <h2>Prendre les donn&eacutees sauvegard&eacutees</h2>
+    <button id="loadCSVFile" class="button">Charger le fichier CSV</button>
 
     <script>
         // Dictionary to store items
@@ -242,8 +250,8 @@
             // Create a table element
             const table = document.createElement('table');
             table.border = '1';
-            table.style.borderCollapse = 'collapse'; // Optional: to    collapse borders
-            table.style.width = '100%'; //  Optional: to make the table full     width
+            table.style.borderCollapse = 'collapse'; // Optional: to collapse borders
+            table.style.width = '100%'; //  Optional: to make the table full width
 
             // Create the header row
             const headerRow = document.createElement('tr');
@@ -252,7 +260,7 @@
                 const header = document.createElement('th');
                 header.textContent = headerText;
                 header.style.padding = '8px'; // Add padding
-                header.style.backgroundColor = '#f9f9f9';
+                header.style.backgroundColor = '#f9fbfe';
                 headerRow.appendChild(header);
             });
             table.appendChild(headerRow);
