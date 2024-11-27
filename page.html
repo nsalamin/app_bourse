@@ -232,6 +232,8 @@
                     updateTicketAcheteur();
                     updateBuyerList();
 
+                    currentItem = itemOrder.length; // set currentItem to the last entry in itemOrder, which is the last item bought
+
                     document.getElementById('nbSeller').textContent = Object.keys(items).length;
                     document.getElementById('nbBuyer').textContent = currentBuyerID;
                     currentBuyerID++; // next buyer is 1 more than the last buyer
@@ -337,6 +339,11 @@
 
             if (whichOne === "last") {
                 itemIndex = itemOrder.length - 1; //last item in itemOrder
+                console.log("itemIndex: ", itemIndex, ", currentItem: ", currentItem);
+                if (itemIndex < currentItem) {
+                    console.log("No item to remove, ", itemIndex, " < ", currentItem);
+                    return;
+                }
             }
             else {
                 itemIndex = currentItem + parseInt(whichOne) - 1; //need to add currentItem to get the correct index in itemOrder and remove 1 because whichOne is 1-based
