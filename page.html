@@ -135,6 +135,7 @@
             const itemId = document.getElementById('Numero vendeur').value;
             let itemPrice = parseFloat(document.getElementById('Prix').value);
             itemPrice = itemPrice.toFixed(2);
+            const timestamp = new Date().toLocaleString('fr-CH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             // Add the price to the array for the given item ID
             if (!items[itemId]) {
@@ -142,7 +143,7 @@
                 document.getElementById('nbSeller').textContent = Object.keys(items).length;
             }
             items[itemId].push(itemPrice);
-            itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID, time: "" });
+            itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID, time: timestamp });
             currentBuyer.push({ id: itemId, price: itemPrice });
 
             // Update the item list display
