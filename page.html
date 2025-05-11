@@ -2,16 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=2.0">
     <title>Ventes</title>
     <style>
         .button {
             background-color: #f0f0f0;
             border-radius: 5px;
             border: 1px solid #ccc;
+            font-size: 20px;
         }
         .foldable-section {
             margin-bottom: 20px;
+            font-size: 20px;
         }
         .foldable-header {
             cursor: pointer;
@@ -39,21 +41,34 @@
             flex-wrap: wrap;
             gap: 10px;
         }
+        .label {
+            font-size: 20px;
+        }
+        .input {
+            background-color: #ffffe0;
+            font-size: 20px;
+        }
+        .hr {
+            margin-top: 75px;
+        }
+        .h2 {
+            font-size: 30px;
+        }
     </style>
 </head>
 <body>
     <h2>Vente en cours - Acheteur <span id="buyInProgress">1</span></h2>
     <form id="itemForm">
-        <label for="itemId">Num&eacutero vendeur:</label>
-        <input type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
-        <label for="itemPrice">Prix:</label>
-        <input type="number" id="Prix" name="itemPrice" step="0.01" required>&nbsp;&nbsp;
+        <label class="label" for="itemId">Num&eacutero vendeur:</label>
+        <input class="input" type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
+        <label class="label" for="itemPrice">Prix:</label>
+        <input class="input" type="number" id="Prix" name="itemPrice" step="0.01" required>&nbsp;&nbsp;
         <button type="submit" class="button">Ajoute une vente</button>
     </form>
     <p></p>
 
     <div class="foldable-section">
-        <div class="foldable-header" onclick="toggleFoldable('foldableTicket')">Liste des achats et prix total de la vente</div>
+        <div class="foldable-header" onclick="toggleFoldable('foldableTicket')">Liste des achats et prix total de la vente (cliquez pour ouvrir/fermer)</div>
         <div class="foldable-content" id="foldableTicket">
             <ol id="priceList"></ol>
             <p>Total: <span id="totalPrice">0.00</span></p>
@@ -62,7 +77,7 @@
 
     <p>
     <button id="removeLastItem" class="button">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
-    <button id="removeItem" class="button">Enl&egraveve l'achat: </button><input type="text" id="itemToRemove" name="item to remove">
+    <button id="removeItem" class="button">Enl&egraveve l'achat: </button><input class="input" type="text" id="itemToRemove" name="item to remove">
     </p>
     <p></p>
     <button id="newBuyer" class="button">Valide cette vente et passe &agrave la suivante</button>
@@ -70,26 +85,26 @@
 
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
 
-    <hr>
+    <hr class="hr">
     <h2>Résumé des ventes jusqu'à présent</h2>
     <div class="foldable-section">
         <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
-        <div class="foldable-header" onclick="toggleFoldable('foldableSeller')">Tableau des vendeurs et leurs ventes</div>
+        <div class="foldable-header" onclick="toggleFoldable('foldableSeller')">Tableau des vendeurs et leurs ventes (cliquez pour ouvrir/fermer)</div>
         <div class="foldable-content" id="foldableSeller">
             <div id="itemList"></div>
         </div>
     </div>
 
-    <hr>
+    <hr class="hr">
     <h2>Résumé des acheteurs</h2>
     <div class="foldable-section">
         <p>Nombre d'acheteurs et leurs achats: <span id="nbBuyer">0</span></p>
-        <div class="foldable-header" onclick="toggleFoldable('foldableBuyer')">Tableau des acheteurs et leurs achats</div>
+        <div class="foldable-header" onclick="toggleFoldable('foldableBuyer')">Tableau des acheteurs et leurs achats (cliquez pour ouvrir/fermer)</div>
         <div class="foldable-content" id="foldableBuyer">
             <div id="buyerTiles" class="buyer-tiles-container"></div>
         </div>
     </div>
-    <hr>
+    <hr class="hr">
     <h2>Prendre les donn&eacutees sauvegard&eacutees</h2>
     <button id="loadCSVFile" class="button">Charger le fichier CSV</button>
 
@@ -110,7 +125,7 @@
             if (currentBuyer.length === 0) {
                 return;
             }
-            const timestamp = new Date().toLocaleString('fr-CH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const timestamp = new Date().toLocaleString('en-UK', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
             allBuyers[currentBuyerID] = { buy: currentBuyer, time: timestamp };
             console.log('allBuyers:', allBuyers);
             itemOrder.forEach((item, index) => {
@@ -135,7 +150,7 @@
             const itemId = document.getElementById('Numero vendeur').value;
             let itemPrice = parseFloat(document.getElementById('Prix').value);
             itemPrice = itemPrice.toFixed(2);
-            const timestamp = new Date().toLocaleString('fr-CH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const timestamp = new Date().toLocaleString('en-UK', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             // Add the price to the array for the given item ID
             if (!items[itemId]) {
@@ -224,9 +239,10 @@
                         }
                         allBuyers[itemBuyer].buy.push({ id: itemId, price: itemPrice });
                         console.log('allBuyers:', allBuyers);
-                        if (itemBuyer > currentBuyerID) {
-                            currentBuyerID = itemBuyer;
-                        }
+                        // if (itemBuyer > currentBuyerID) {
+                        //     currentBuyerID = itemBuyer;
+                            // }
+                            currentBuyerID = Object.keys(allBuyers).length
                     });
                     updateItemList();
                     // Update the foldable section
@@ -258,7 +274,7 @@
 
             // Create the header row
             const headerRow = document.createElement('tr');
-            const headers = ['Vendeur', 'Prix', 'Vente total', 'Nombre articles'];
+            const headers = ['Vendeur', 'Prix', 'Nombre articles', 'Vente total', '10% du prix', 'Somme à donner'];
             headers.forEach(headerText => {
                 const header = document.createElement('th');
                 header.textContent = headerText;
@@ -276,25 +292,16 @@
                 const idCell = document.createElement('td');
                 idCell.textContent = id;
                 idCell.style.padding =  '8px'; // Add padding
-                idCell.style.width = '10%';
+                idCell.style.width = '5%';
                 row.appendChild(idCell);
 
                 // Create and append the Prices cell
                 const pricesCell = document.createElement('td');
                 pricesCell.textContent = prices.map(price => parseFloat(price).toFixed(2)).join(', ');
                 pricesCell.style.padding = '8px'; // Add padding
-                pricesCell.style.width = '75%'; // Optional: to make the cell take up 50% of the width
+                pricesCell.style.width = '65%'; // Optional: to make the cell take up 50% of the width
                 pricesCell.style.textAlign = 'right';
                 row.appendChild(pricesCell);
-
-                // Create and append the Total cell
-                const totalCell = document.createElement('td');
-                const totalSales = prices.reduce((sum, price) => sum + parseFloat(price), 0);
-                totalCell.textContent = totalSales.toFixed(2);
-                totalCell.style.padding ='8px'; // Add padding
-                totalCell.style.width = '10%';
-                totalCell.style.textAlign = 'right';
-                row.appendChild(totalCell);
 
                 // Create and append the Number of items cell
                 const nbItemsCell = document.createElement('td');
@@ -304,6 +311,37 @@
                 nbItemsCell.style.width = '5%';
                 nbItemsCell.style.textAlign = 'right';
                 row.appendChild(nbItemsCell);
+
+                // Create and append the Total cell
+                const totalCell = document.createElement('td');
+                const totalSales = prices.reduce((sum, price) => sum + parseFloat(price), 0);
+                totalCell.textContent = totalSales.toFixed(2);
+                totalCell.style.padding ='8px'; // Add padding
+                totalCell.style.width = '8%';
+                totalCell.style.textAlign = 'right';
+                row.appendChild(totalCell);
+
+                // Create and append the 10% of Prices cell
+                const tenPercent = totalSales * 0.1;
+                const roundedTenPercent = ((tenPercent % 1) <= 0.101) ? Math.floor(tenPercent) : Math.ceil(tenPercent);
+
+                const tenPercentCell = document.createElement('td');
+                const tenPercentValue = roundedTenPercent.toFixed(2);
+                tenPercentCell.textContent = tenPercentValue;
+                tenPercentCell.style.padding = '8px'; // Add padding
+                tenPercentCell.style.width = '8%'; // Adjust width
+                tenPercentCell.style.textAlign = 'right';
+                row.appendChild(tenPercentCell);
+
+                //Create and append the sum to give
+                const sumToGiveCell = document.createElement('td');
+                const sumToGive = (totalSales - roundedTenPercent).toFixed(2);
+                sumToGiveCell.textContent = sumToGive;
+                sumToGiveCell.style.padding = '8px'; // Add padding
+                sumToGiveCell.style.width = '10%';
+                sumToGiveCell.style.textAlign = 'right';
+                sumToGiveCell.style.fontWeight = 'bold';
+                row.appendChild(sumToGiveCell);
 
                 table.appendChild(row);
             });
