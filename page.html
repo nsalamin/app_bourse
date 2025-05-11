@@ -63,7 +63,7 @@
         <input class="input" type="text" id="Numero vendeur" name="itemId" required>&nbsp;&nbsp;
         <label class="label" for="itemPrice">Prix:</label>
         <input class="input" type="number" id="Prix" name="itemPrice" step="0.01" required>&nbsp;&nbsp;
-        <button type="submit" class="button">Ajoute une vente</button>
+        <button type="submit" class="button" style="background : #cbedcb;">Ajoute une vente</button>
     </form>
     <p></p>
 
@@ -76,11 +76,11 @@
     </div>
 
     <p>
-    <button id="removeLastItem" class="button" style="background : #ffb6c1;">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
-    <button id="removeItem" class="button" style="background : #ffb6c1;">Enl&egraveve l'achat numéro</button>&nbsp;<input class="input" type="text" id="itemToRemove" name="item to remove">
+    <button id="removeLastItem" class="button" style="background : #f8dce0;">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
+    <button id="removeItem" class="button" style="background : #f8dce0;">Enl&egraveve l'achat numéro</button>&nbsp;<input class="input" type="text" id="itemToRemove" name="item to remove">
     </p>
     <p></p>
-    <button id="newBuyer" class="button" style="background : #90ee90;">Valide cette vente et passe &agrave la suivante</button>
+    <button id="newBuyer" class="button" style="background : #cbedcb;">Valide cette vente et passe &agrave la suivante</button>
     <p></p>
 
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
@@ -125,7 +125,7 @@
             if (currentBuyer.length === 0) {
                 return;
             }
-            const timestamp = new Date().toLocaleString('en-UK', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const timestamp = new Date().toLocaleString('fr-CH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
             allBuyers[currentBuyerID] = { buy: currentBuyer, time: timestamp };
             console.log('allBuyers:', allBuyers);
             itemOrder.forEach((item, index) => {
@@ -136,8 +136,8 @@
             currentItem = itemOrder.length;
             currentBuyer = [];
             document.getElementById('nbBuyer').textContent = currentBuyerID;
-            currentBuyerID++; // next buyer is 1 more than the last buyer
             document.getElementById('buyInProgress').textContent = currentBuyerID;
+            currentBuyerID++; // next buyer is 1 more than the last buyer
             updateTicketAcheteur();
             updateBuyerList();
             updateData();
@@ -150,7 +150,7 @@
             const itemId = document.getElementById('Numero vendeur').value;
             let itemPrice = parseFloat(document.getElementById('Prix').value);
             itemPrice = itemPrice.toFixed(2);
-            const timestamp = new Date().toLocaleString('en-UK', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const timestamp = new Date().toLocaleString('fr-CH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
             // Add the price to the array for the given item ID
             if (!items[itemId]) {
@@ -214,36 +214,36 @@
         }
 
         function mergeCSV() {
-    const fileToMerge = prompt("Enter the name of the CSV file to merge (e.g., new_data.csv):");
+            const fileToMerge = prompt("Enter the name of the CSV file to merge (e.g., new_data.csv):");
 
-    if (!fileToMerge) {
-        console.error("No file specified to merge.");
-        alert("Please specify a valid file name.");
-        return;
-    }
+            if (!fileToMerge) {
+                console.error("No file specified to merge.");
+                alert("Please specify a valid file name.");
+                return;
+            }
 
-    fetch(`http://localhost:3000/mergeCSV?fileToMerge=${encodeURIComponent(fileToMerge)}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
+            fetch(`http://localhost:3000/mergeCSV?fileToMerge=${encodeURIComponent(fileToMerge)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error merging CSV files: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log("Merge successful:", data);
+                alert("CSV files merged successfully!");
+                loadCSV(); // Reload the updated data
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Failed to merge CSV files. Check the console for details.");
+            });
         }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Error merging CSV files: ${response.statusText}`);
-        }
-        return response.text();
-    })
-    .then(data => {
-        console.log("Merge successful:", data);
-        alert("CSV files merged successfully!");
-        loadCSV(); // Reload the updated data
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("Failed to merge CSV files. Check the console for details.");
-    });
-}
 
         function loadCSV() {
             items = {};
