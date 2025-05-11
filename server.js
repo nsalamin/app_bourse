@@ -32,6 +32,52 @@ app.get('/loadCSV', (req, res) => {
         });
 });
 
+app.get('/mergeCSV', async (req, res) => {
+    const fileToMerge = req.query.fileToMerge;
+    console.log('Merging CSV files...'); // Debugging log
+
+    if (!fileToMerge) {
+        console.error('No file specified to merge'); // Debugging log
+        return res.status(400).send('No file specified to merge');
+    }
+
+    const existingFilePath = path.join(__dirname, 'vendeur_prix.csv');
+    const newFilePath = path.join(__dirname, fileToMerge);
+
+    console.log('Existing file path:', existingFilePath); // Debugging log
+
+    // Check if both files exist
+    if (!fs.existsSync(existingFilePath)) {
+        console.error('Existing CSV file not found:', existingFilePath);
+        return res.status(400).send('Existing CSV file not found');
+    }
+
+    if (!fs.existsSync(newFilePath)) {
+        console.error('File to merge not found:', newFilePath);
+        return res.status(400).send('File to merge not found');
+    }
+    
+    const { spawn } = require('child_process');
+    const pythonProcess = spawn('python3', ['merge_csv.py', newFilePath]);
+
+    pythonProcess.stdout.on('data', (data) => {
+        console.log(`Python stdout: ${data}`);
+    });
+    
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`Python stderr: ${data}`);
+    });
+    
+    pythonProcess.on('close', (code) => {
+        console.log(`Python process exited with code ${code}`);
+        if (code !== 0) {
+            res.status(500).send('Error merging CSV files');
+        } else {
+            res.status(200).send('CSV files merged successfully');
+        }
+    });
+});
+
 app.post('/saveToCSV', (req, res) => {
     console.log('Headers:', req.headers); // Debugging log
     console.log('Body:', req.body); // Debugging log

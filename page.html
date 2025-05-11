@@ -76,11 +76,11 @@
     </div>
 
     <p>
-    <button id="removeLastItem" class="button">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
-    <button id="removeItem" class="button">Enl&egraveve l'achat: </button><input class="input" type="text" id="itemToRemove" name="item to remove">
+    <button id="removeLastItem" class="button" style="background : #ffb6c1;">Enl&egraveve le dernier achat</button>&nbsp;&nbsp;
+    <button id="removeItem" class="button" style="background : #ffb6c1;">Enl&egraveve l'achat numéro</button>&nbsp;<input class="input" type="text" id="itemToRemove" name="item to remove">
     </p>
     <p></p>
-    <button id="newBuyer" class="button">Valide cette vente et passe &agrave la suivante</button>
+    <button id="newBuyer" class="button" style="background : #90ee90;">Valide cette vente et passe &agrave la suivante</button>
     <p></p>
 
     <!-- <button id="saveToCSV">Sauvegarder les ventes dans un fichier CSV</button>     -->
@@ -106,7 +106,7 @@
     </div>
     <hr class="hr">
     <h2>Prendre les donn&eacutees sauvegard&eacutees</h2>
-    <button id="loadCSVFile" class="button">Charger le fichier CSV</button>
+    <p><button id="loadCSVFile" class="button">Charger le fichier CSV</button></p><p><button id="mergeCSVFiles" class="button">Combiner avec un autre fichier CSV</button></p>
 
     <script>
         // Dictionary to store items
@@ -185,6 +185,8 @@
 
         document.getElementById('loadCSVFile').addEventListener('click', loadCSV);
 
+        document.getElementById('mergeCSVFiles').addEventListener('click', mergeCSV);
+
         // document.getElementByID('saveToCSV').addEventListener('click', function() {
         //     fetch('http://localhost:3000/saveToCSV', {
         //         method: 'POST',
@@ -210,6 +212,38 @@
             .then(data => console.log(data))
             .catch(error => console.error('Error:', error));
         }
+
+        function mergeCSV() {
+    const fileToMerge = prompt("Enter the name of the CSV file to merge (e.g., new_data.csv):");
+
+    if (!fileToMerge) {
+        console.error("No file specified to merge.");
+        alert("Please specify a valid file name.");
+        return;
+    }
+
+    fetch(`http://localhost:3000/mergeCSV?fileToMerge=${encodeURIComponent(fileToMerge)}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error merging CSV files: ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log("Merge successful:", data);
+        alert("CSV files merged successfully!");
+        loadCSV(); // Reload the updated data
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Failed to merge CSV files. Check the console for details.");
+    });
+}
 
         function loadCSV() {
             items = {};
