@@ -136,8 +136,8 @@
             currentItem = itemOrder.length;
             currentBuyer = [];
             document.getElementById('nbBuyer').textContent = currentBuyerID;
-            document.getElementById('buyInProgress').textContent = currentBuyerID;
             currentBuyerID++; // next buyer is 1 more than the last buyer
+            document.getElementById('buyInProgress').textContent = currentBuyerID;
             updateTicketAcheteur();
             updateBuyerList();
             updateData();
@@ -276,19 +276,22 @@
                         // if (itemBuyer > currentBuyerID) {
                         //     currentBuyerID = itemBuyer;
                             // }
-                            currentBuyerID = Object.keys(allBuyers).length
+                        currentBuyerID = Object.keys(allBuyers).length
                     });
-                    updateItemList();
-                    // Update the foldable section
-                    updateTicketAcheteur();
-                    updateBuyerList();
+                    
+                    if (Object.keys(allBuyers).length > 0) {
+                        console.log("I'm here...")
+                        updateItemList();
+                        updateTicketAcheteur();
+                        updateBuyerList();
+                    
+                        currentItem = itemOrder.length; // set currentItem to the last entry in itemOrder, which is the last item bought
 
-                    currentItem = itemOrder.length; // set currentItem to the last entry in itemOrder, which is the last item bought
-
-                    document.getElementById('nbSeller').textContent = Object.keys(items).length;
-                    document.getElementById('nbBuyer').textContent = currentBuyerID;
-                    currentBuyerID++; // next buyer is 1 more than the last buyer
-                    document.getElementById('buyInProgress').textContent = currentBuyerID;
+                        document.getElementById('nbSeller').textContent = Object.keys(items).length;
+                        document.getElementById('nbBuyer').textContent = currentBuyerID;
+                        currentBuyerID++; // next buyer is 1 more than the last buyer
+                        document.getElementById('buyInProgress').textContent = currentBuyerID;
+                    }
                 })
                 .catch(error => console.error('Error loading CSV:', error));
         }
