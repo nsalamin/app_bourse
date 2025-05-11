@@ -13,7 +13,6 @@ with open("vendeur_prix_old.csv", "r") as infile, open("vendeur_prix.csv", "w") 
     outfile.write(line) #write the header to the new file
     for line in infile:
         data = line.split(",")
-        print(data)
         col2 = int(data[2])
         if col2 > max_buyer:
             max_buyer = col2  # corrected variable name
@@ -23,6 +22,5 @@ with open(otherfile, "r") as tomerge, open("vendeur_prix.csv", "a") as outfile:
     line = tomerge.readline() #same as above
     for line in tomerge:
         data = line.split(",")
-        print(data)
         data[2] = str(int(data[2]) + max_buyer) #add to the buyer id the max of the previous data
         outfile.write(",".join(data))
