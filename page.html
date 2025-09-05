@@ -102,7 +102,10 @@
     <div class="foldable-section">
         <p>Nombre d'acheteurs et leurs achats: <span id="nbBuyer">0</span></p>
         <div class="foldable-header" onclick="toggleFoldable('foldableBuyer')">Tableau des acheteurs et leurs achats (cliquez pour ouvrir/fermer)</div>
+        <div>
         <div class="foldable-content" id="foldableBuyer">
+            <div><input type="text" id="buyerSearch" class="input" placeholder="Rechercher par date ou somme...">   
+            </div>
             <div id="buyerTiles" class="buyer-tiles-container"></div>
         </div>
     </div>
@@ -398,11 +401,24 @@
             content.style.display = 'block';
         }
 
-        function updateBuyerList() {
+        function updateBuyerList(filter = "") {
             const buyerTiles = document.getElementById('buyerTiles');
             buyerTiles.innerHTML = '';
 
             Object.entries(allBuyers).forEach(([key, buyer]) => {
+                const total = buyer.buy.reduce((sum, { price }) => sum + parseFloat(price), 0);
+                const timeStr = buyer.time ? buyer.time.toLowerCase() : "";
+                const totalStr = total.toFixed(2);
+
+                // Filter by time or sum
+                if (
+                    filter &&
+                    !timeStr.includes(filter.toLowerCase()) &&
+                    !totalStr.includes(filter)
+                ) {
+                    return;
+                }
+
                 const buyerTile = document.createElement('div');
                 buyerTile.className = 'buyer-tile';
                 buyerTile.innerHTML = `
@@ -411,11 +427,16 @@
                     <ul>
                         ${buyer.buy.map(({ id, price }) => `<li>${parseFloat(price).toFixed(2)} (vendeur ${id})</li>`).join('')}
                     </ul>
-                    <p>Total: ${buyer.buy.reduce((sum, { price }) => sum + parseFloat(price), 0).toFixed(2)}</p>
+                    <p>Total: ${totalStr}</p>
                 `;
                 buyerTiles.appendChild(buyerTile);
             });
         }
+
+        // Add search event listener
+        document.getElementById('buyerSearch').addEventListener('input', function(e) {
+            updateBuyerList(e.target.value);
+        });
 
         function removeItem(whichOne) {
             let itemIndex = 0;
