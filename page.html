@@ -88,7 +88,9 @@
     <hr class="hr">
     <h2>Résumé des ventes jusqu'à présent</h2>
     <div class="foldable-section">
-        <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span></p>
+        <p>Nombre de vendeurs avec vente: <span id="nbSeller">0</span><br>
+        Nombre total d'articles vendus: <span id="nbArticlesSold">0</span><br>
+        Somme totale des ventes: <span id="totalSales">0.00</span></p>
         <div class="foldable-header" onclick="toggleFoldable('foldableSeller')">Tableau des vendeurs et leurs ventes (cliquez pour ouvrir/fermer)</div>
         <div class="foldable-content" id="foldableSeller">
             <div id="itemList"></div>
@@ -160,6 +162,10 @@
             items[itemId].push(itemPrice);
             itemOrder.push({ id: itemId, price: itemPrice, buyer: currentBuyerID, time: timestamp });
             currentBuyer.push({ id: itemId, price: itemPrice });
+
+            // Update summary values
+            document.getElementById('nbArticlesSold').textContent = itemOrder.length;
+            document.getElementById('totalSales').textContent = itemOrder.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
 
             // Update the item list display
             updateItemList();
@@ -287,6 +293,8 @@
                         currentItem = itemOrder.length; // set currentItem to the last entry in itemOrder, which is the last item bought
 
                         document.getElementById('nbSeller').textContent = Object.keys(items).length;
+                        document.getElementById('nbArticlesSold').textContent = itemOrder.length;
+                        document.getElementById('totalSales').textContent = itemOrder.reduce((sum, item) => sum + parseFloat(item.price), 0).toFixed(2);
                         document.getElementById('nbBuyer').textContent = currentBuyerID;
                         currentBuyerID++; // next buyer is 1 more than the last buyer
                         document.getElementById('buyInProgress').textContent = currentBuyerID;
@@ -436,6 +444,8 @@
                         delete items[id];
                     }
                     document.getElementById('nbSeller').textContent = Object.keys(items).length;
+                    document.getElementById('nbArticlesSold').textContent = itemOrder.length - 1;
+                    document.getElementById('totalSales').textContent = (itemOrder.reduce((sum, item) => sum + parseFloat(item.price), 0) - parseFloat(price)).toFixed(2);
                 }
                 itemOrder.splice(itemIndex, 1);
                 currentBuyer.splice(itemIndex - currentItem, 1); //need to subtract currentItem to get the correct index in currentBuyer
